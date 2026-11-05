@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي التحليل الكيميائي الكيفي - الصف الثالث الثانوي</title>
+    <!-- مكتبات التصدير والمؤثرات البصرية -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #1e1b4b 100%);
+            --card-bg: #111827;
+            --text-main: #f9fafb;
+            --text-muted: #a5b4fc;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --option-bg: #1f2937;
+            --option-border: #374151;
+            --status-bg: #182234;
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            --header-gradient: linear-gradient(90deg, #818cf8, #38bdf8);
+        }
+
+        body.theme-vibrant {
+            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f5f3ff 50%, #ecfdf5 100%);
+            --card-bg: rgba(255, 255, 255, 0.94);
+            --text-main: #1e1b4b;
+            --text-muted: #4338ca;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --option-bg: #f8faff;
+            --option-border: #c7d2fe;
+            --status-bg: #eef2ff;
+            --shadow: 0 15px 35px rgba(79, 70, 229, 0.15);
+            --header-gradient: linear-gradient(90deg, #4f46e5, #06b6d4);
+        }
+
+        body.theme-light {
+            --bg-gradient: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --option-bg: #ffffff;
+            --option-border: #e2e8f0;
+            --status-bg: #f1f5f9;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --header-gradient: linear-gradient(90deg, #2563eb, #3b82f6);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        /* تثبيت اتجاه الرموز والصيغ الكيميائية */
+        .chem, bdi {
+            direction: ltr !important;
+            unicode-bidi: isolate !important;
+            display: inline-block;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-weight: 700;
+            padding: 0 2px;
+        }
+
+        .chem sub {
+            font-size: 0.75em;
+            bottom: -0.25em;
+            position: relative;
+            line-height: 0;
+            vertical-align: baseline;
+        }
+
+        .chem sup {
+            font-size: 0.75em;
+            top: -0.35em;
+            position: relative;
+            line-height: 0;
+            vertical-align: baseline;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 820px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .theme-switcher {
+            display: flex;
+            gap: 6px;
+            background: var(--status-bg);
+            padding: 5px;
+            border-radius: 30px;
+            border: 1px solid var(--option-border);
+        }
+
+        .theme-btn {
+            border: none;
+            background: none;
+            font-size: 0.88rem;
+            padding: 5px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .theme-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px dashed var(--option-border);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            background: var(--header-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .designer-tag {
+            background: var(--status-bg);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            display: inline-block;
+            font-weight: bold;
+            border: 1px solid var(--option-border);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--status-bg);
+            padding: 10px 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            border: 1px solid var(--option-border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge-score { color: #10b981; }
+        .badge-lives { color: #f87171; }
+        .badge-skips { color: #fbbf24; }
+        .badge-timer { color: #38bdf8; font-family: monospace; font-size: 1.05rem; }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            scrollbar-width: none;
+        }
+        .category-tabs::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            white-space: nowrap;
+            background: var(--status-bg);
+            border: 1px solid var(--option-border);
+            padding: 9px 15px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+
+        .cat-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .cat-btn.summary-btn {
+            border: 1.8px solid #a855f7;
+            color: #c084fc;
+        }
+        .cat-btn.summary-btn.active {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #fff;
+        }
+
+        .start-prompt-box {
+            text-align: center;
+            padding: 30px 20px;
+            background: var(--status-bg);
+            border: 2px dashed var(--primary);
+            border-radius: 18px;
+            margin-bottom: 20px;
+        }
+
+        .start-prompt-box h3 {
+            color: var(--text-main);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .start-prompt-box p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn-start-cat {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 13px 30px;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-start-cat:hover {
+            background: var(--primary-hover);
+            transform: scale(1.03);
+        }
+
+        /* تم استبدال flex بـ block لحل مشكلة تقطيع وانعكاس النصوص نهائياً */
+        .question-box {
+            font-size: 1.15rem;
+            line-height: 1.9;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            min-height: 65px;
+            font-weight: 700;
+            text-align: right;
+            display: block;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: var(--option-bg);
+            border: 2px solid var(--option-border);
+            color: var(--text-main);
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            line-height: 1.6;
+            display: block;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            background: var(--status-bg);
+        }
+
+        .option-btn.correct {
+            background: #064e3b !important;
+            border-color: #10b981 !important;
+            color: #ecfdf5 !important;
+        }
+
+        .option-btn.wrong {
+            background: #7f1d1d !important;
+            border-color: #ef4444 !important;
+            color: #fef2f2 !important;
+            animation: shake 0.3s;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.92rem;
+            min-width: 100px;
+        }
+
+        .btn-pause { background: #1e3a8a; color: #bfdbfe; }
+        .btn-pause.paused { background: #065f46; color: #a7f3d0; }
+        .btn-skip { background: #78350f; color: #fde68a; }
+        .btn-end { background: #7f1d1d; color: #fecaca; }
+
+        .summary-container {
+            display: none;
+            max-height: 620px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .summary-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background: var(--status-bg);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--option-border);
+        }
+
+        .btn-back-main {
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .summary-subtabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .sub-btn {
+            background: var(--status-bg);
+            border: 1px solid var(--option-border);
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .sub-btn.active {
+            background: #8b5cf6;
+            color: #fff;
+            border-color: #8b5cf6;
+        }
+
+        .summary-item {
+            background: var(--status-bg);
+            border-right: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-top: 1px solid var(--option-border);
+            border-left: 1px solid var(--option-border);
+            border-bottom: 1px solid var(--option-border);
+        }
+
+        .summary-item h4 {
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+
+        .summary-item p {
+            color: var(--text-main);
+            font-size: 0.94rem;
+            line-height: 1.6;
+        }
+
+        .end-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score-card {
+            background: var(--status-bg);
+            border: 2px solid var(--option-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 15px 0;
+            color: var(--text-main);
+        }
+
+        .score-card .final-score {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .share-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-share {
+            padding: 13px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-whatsapp { background: #25d366; }
+        .btn-facebook { background: #1877f2; }
+        .btn-image { background: #8b5cf6; }
+        .btn-restart { background: var(--primary); margin-top: 5px; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+    </style>
+</head>
+<body class="theme-dark">
+
+    <div class="container">
+        <!-- شريط تغيير المظهر -->
+        <div class="top-bar">
+            <span style="font-size: 0.88rem; font-weight: bold; color: var(--text-muted);">المظهر:</span>
+            <div class="theme-switcher">
+                <button class="theme-btn" id="btn-theme-vibrant" onclick="setTheme('vibrant')">ملون</button>
+                <button class="theme-btn" id="btn-theme-light" onclick="setTheme('light')">أبيض</button>
+                <button class="theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')">داكن</button>
+            </div>
+        </div>
+
+        <!-- ترويسة اللعبة -->
+        <header>
+            <h1>⚗️ تحدي التحليل الكيميائي الكيفي (الباب الثاني)</h1>
+            <div class="designer-tag">
+                مصمم اللعبة: أ/ عبد الرحمن عبد الله - 01021779644
+            </div>
+        </header>
+
+        <!-- واجهة التلخيص والمراجعة الشاملة -->
+        <div id="summary-view" class="summary-container">
+            <div class="summary-header-bar">
+                <button class="btn-back-main" onclick="returnToGame()">🔙 العودة للعبة</button>
+                <span style="font-weight: bold; font-size: 0.95rem; color: var(--text-muted);">كراسة التحليل الكيفي (أنيونات وكاتيونات)</span>
+            </div>
+            <div class="summary-subtabs">
+                <button class="sub-btn active" onclick="showSummaryTab('defs')">📖 المفاهيم والأسس</button>
+                <button class="sub-btn" onclick="showSummaryTab('reasons')">💡 أهم التعليلات</button>
+                <button class="sub-btn" onclick="showSummaryTab('reagents')">🔬 كواشف الأنيونات والغازات</button>
+                <button class="sub-btn" onclick="showSummaryTab('cations')">⚡ المجموعات التحليلية للكاتيونات</button>
+                <button class="sub-btn" onclick="showSummaryTab('precipitates')">⚖️ جدول الرواسب والذوبانية</button>
+            </div>
+            <div id="summary-content"></div>
+        </div>
+
+        <!-- واجهة الأسئلة -->
+        <div id="game-view">
+            <div class="category-tabs" id="category-tabs"></div>
+
+            <!-- شاشة بدء التحدي لكل كاتيجوري -->
+            <div id="cat-start-screen" class="start-prompt-box">
+                <h3 id="cat-start-title">اسم الكاتيجوري</h3>
+                <p id="cat-start-info">معلومات الوقت والأسئلة...</p>
+                <button class="btn-start-cat" onclick="startCategoryQuiz()">▶️ بدء التحدي الآن</button>
+            </div>
+
+            <!-- محتوى الاختبار الفعلي -->
+            <div id="quiz-active-area" style="display: none;">
+                <div class="status-bar">
+                    <span class="badge-score">🏆 النقاط: <span id="score-val">0</span></span>
+                    <span class="badge-lives">❤️ المحاولات: <span id="lives-val">7/7</span></span>
+                    <span class="badge-skips">⏩ التخطي: <span id="skips-val">3/3</span></span>
+                    <span class="badge-timer">⏳ الوقت المتبقي: <span id="timer-val">00:00</span></span>
+                </div>
+
+                <div class="question-box" id="question-text">جارٍ تحميل السؤال...</div>
+                <div class="options-grid" id="options-container"></div>
+
+                <div class="actions-bar">
+                    <button class="btn-action btn-pause" id="btn-pause" onclick="togglePauseGame()">⏸️ إيقاف مؤقت</button>
+                    <button class="btn-action btn-skip" id="btn-skip" onclick="skipQuestion()">⏩ تخطي السؤال</button>
+                    <button class="btn-action btn-end" onclick="endGame('manual')">🛑 إنهاء التحدي</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- شاشة النتيجة وشهادة التقدير -->
+        <div id="end-view" class="end-screen">
+            <div class="score-card" id="export-card">
+                <h2>شهادة إنجاز التحدي 🎓</h2>
+                <p style="color: var(--text-muted); margin-top: 5px;">كيمياء الثانوية العامة - الباب الثاني: التحليل الكيميائي</p>
+                <div class="final-score" id="final-score-val">0</div>
+                <p id="evaluation-text" style="font-weight: bold; font-size: 1.15rem; color: #10b981; line-height: 1.6;"></p>
+                <div style="margin-top: 15px; border-top: 1px dashed var(--option-border); padding-top: 10px; font-size: 0.85rem; color: var(--text-muted);">
+                    إعداد الأستاذ: عبد الرحمن عبد الله | هاتف: 01021779644
+                </div>
+            </div>
+
+            <div class="share-buttons">
+                <button class="btn-share btn-image" onclick="downloadResultImage()">📸 تحميل النتيجة كصورة للستوري</button>
+                <button class="btn-share btn-whatsapp" onclick="shareWhatsApp()">💬 إرسال النتيجة عبر واتساب</button>
+                <button class="btn-share btn-facebook" onclick="shareFacebook()">🌐 نسخ النتيجة للنشر على فيسبوك</button>
+                <button class="btn-share btn-restart" onclick="restartGame()">🔄 إعادة اللعب بأسئلة متجددة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+
+                if (type === 'correct') {
+                    const notes = [659.25, 880];
+                    notes.forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + i * 0.12);
+                        gain.gain.setValueAtTime(0, now + i * 0.12);
+                        gain.gain.linearRampToValueAtTime(0.18, now + i * 0.12 + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.35);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + i * 0.12);
+                        osc.stop(now + i * 0.12 + 0.35);
+                    });
+                } else if (type === 'wrong') {
+                    [160, 120].forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+                        gain.gain.setValueAtTime(0.22, now + idx * 0.15);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.15 + 0.14);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + idx * 0.15);
+                        osc.stop(now + idx * 0.15 + 0.14);
+                    });
+                } else if (type === 'win') {
+                    const chord = [523.25, 659.25, 783.99, 1046.50];
+                    chord.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        gain.gain.setValueAtTime(0, now + idx * 0.1);
+                        gain.gain.linearRampToValueAtTime(0.15, now + idx * 0.1 + 0.03);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.45);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + idx * 0.1);
+                        osc.stop(now + idx * 0.1 + 0.45);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio waiting for interaction");
+            }
+        }
+
+        const summaryData = {
+            defs: [
+                { title: "التحليل الكيميائي الوصفي (الكيفي / النوعي)", desc: "سلسلة من العمليات تهدف إلى التعرف على نوع المكونات الأساسية للمادة النقية أو المجهولة في مخلوط." },
+                { title: "أساس الكشف عن الأنيونات", desc: "الحمض الأكثر ثباتاً يطرد الحمض الأقل ثباتاً من أملاحه الصلبة في صورة غاز يمكن الكشف عنه بسهولة." },
+                { title: "ثبات الأحماض", desc: "درجة غليان الحمض وصعوبة تطايره وتفككه، ولا تعني بالضرورة قوة الحمض من حيث التأين." },
+                { title: "المجموعة التحليلية للكاتيونات", desc: "تقسيم الكاتيونات إلى 6 مجموعات اعتماداً على اختلاف ذوبانية أملاحها الشحيحة (كلوريدات، كبريتيدات، هيدروكسيدات، كربونات)." }
+            ],
+            reasons: [
+                { title: "علل: الكشف عن الكاتيونات أكثر تعقيداً من الكشف عن الأنيونات؟", desc: "لكثرة عدد الشقوق القاعدية وتداخلها فيما بينها، وإمكانية وجود أكثر من حالة تأكسد لنفس الكاتيون الفلزي." },
+                { title: "علل: يستخدم حمض الهيدروكلوريك في التمييز بين النيتريت والنترات؟", desc: "لأن حمض الهيدروكلوريك أكثر ثباتاً من حمض النيتروز فيطرده ويتصاعد غاز <bdi class='chem'>NO</bdi>، بينما أقل ثباتاً من حمض النيتريك فلا يتفاعل معه." },
+                { title: "علل: يذوب راسب هيدروكسيد الألومنيوم في الزيادة من NaOH؟", desc: "لأنه هيدروكسيد متردد يتفاعل مع القلويات القوية مكوناً ملح ميتا ألومينات الصوديوم الذائب في الماء <bdi class='chem'>NaAlO<sub>2</sub></bdi>." },
+                { title: "علل: يسود راسب كبريتيت الفضة بالتسخين؟", desc: "لانحلال <bdi class='chem'>Ag<sub>2</sub>SO<sub>3</sub></bdi> بالحرارة وتكوّن راسب كبريتيد الفضة الأسود (<bdi class='chem'>Ag<sub>2</sub>S</bdi>)." }
+            ],
+            reagents: [
+                { title: "مجموعة حمض الهيدروكلوريك المخفف (الأقل ثباتاً)", desc: "تكشف عن أنيونات: (الكربونات <bdi class='chem'>CO<sub>3</sub><sup>2-</sup></bdi>، البيكربونات <bdi class='chem'>HCO<sub>3</sub><sup>-</sup></bdi>، الكبريتيت <bdi class='chem'>SO<sub>3</sub><sup>2-</sup></bdi>، الكبريتيد <bdi class='chem'>S<sup>2-</sup></bdi>، الثيوكبريتات <bdi class='chem'>S<sub>2</sub>O<sub>3</sub><sup>2-</sup></bdi>، النيتريت <bdi class='chem'>NO<sub>2</sub><sup>-</sup></bdi>)." },
+                { title: "مجموعة حمض الكبريتيك المركز الساخن (المتوسطة الثبات)", desc: "تكشف عن أنيونات: (الكلوريد <bdi class='chem'>Cl<sup>-</sup></bdi> غاز سحب بيضاء مع النشادر، البروميد <bdi class='chem'>Br<sup>-</sup></bdi> أبخرة برتقالية تصفر النشا، اليوديد <bdi class='chem'>I<sup>-</sup></bdi> أبخرة بنفسجية تزرق النشا، النترات <bdi class='chem'>NO<sub>3</sub><sup>-</sup></bdi> أبخرة بنية حمراء تزداد بالنحاس)." },
+                { title: "مجموعة كلوريد الباريوم BaCl2 (الأحماض الثابتة جداً)", desc: "تكشف عن محاليل: الكبريتات <bdi class='chem'>SO<sub>4</sub><sup>2-</sup></bdi> (راسب أبيض لا يذوب في HCl المخفف)، والفوسفات <bdi class='chem'>PO<sub>4</sub><sup>3-</sup></bdi> (راسب أبيض يذوب في HCl المخفف)." }
+            ],
+            cations: [
+                { title: "المجموعة التحليلية الأولى", desc: "كاشف المجموعة: HCl المخفف. ترسب على هيئة كلوريدات شحيحة الذوبان مثل: (<bdi class='chem'>Ag<sup>+</sup></bdi>, <bdi class='chem'>Pb<sup>2+</sup></bdi>, <bdi class='chem'>Hg<sub>2</sub><sup>2+</sup></bdi>)." },
+                { title: "المجموعة التحليلية الثانية", desc: "كاشف المجموعة: H2S في وسط حمضي (HCl). ترسب على هيئة كبريتيدات سوداء مثل: (<bdi class='chem'>Cu<sup>2+</sup></bdi>)." },
+                { title: "المجموعة التحليلية الثالثة", desc: "كاشف المجموعة: NH4OH (وتأكيدي NaOH). ترسب هيدروكسيدات: <bdi class='chem'>Fe<sup>2+</sup></bdi> (أبيض مخضر)، <bdi class='chem'>Fe<sup>3+</sup></bdi> (بني محمر)، <bdi class='chem'>Al<sup>3+</sup></bdi> (أبيض جيلاتيني يذوب في وفرة NaOH)." },
+                { title: "المجموعة التحليلية الخامسة", desc: "كاشف المجموعة: (NH4)2CO3. ترسب كربونات بيضاء: <bdi class='chem'>Ca<sup>2+</sup></bdi> (تذوب في الأحماض، وتعطي لهباً أحمر طوبياً في لهب بنزن)." }
+            ],
+            precipitates: [
+                { title: "رواسب نترات الفضة AgNO3 الشهيرة", desc: "<bdi class='chem'>AgCl</bdi> (أبيض يذوب بسرعة في النشادر) - <bdi class='chem'>AgBr</bdi> (أبيض مصفر يذوب ببطء) - <bdi class='chem'>AgI</bdi> (أصفر لا يذوب في النشادر) - <bdi class='chem'>Ag<sub>3</sub>PO<sub>4</sub></bdi> (أصفر يذوب في النشادر وحمض النيتريك) - <bdi class='chem'>Ag<sub>2</sub>S</bdi> (أسود) - <bdi class='chem'>Ag<sub>2</sub>SO<sub>3</sub></bdi> (أبيض يسود بالتسخين)." },
+                { title: "رواسب خلات الرصاص II", desc: "<bdi class='chem'>PbS</bdi> (راسب أسود ناتج عن H2S) - <bdi class='chem'>PbSO<sub>4</sub></bdi> (راسب أبيض ناتج عن أيون الكبريتات)." }
+            ]
+        };
+
+        const rawQuestionBank = {
+            "كواشف وأنيونات الأحماض وكلوريد الباريوم": [
+                { q: "أي من المواد التالية تتفاعل مع حمض الكبريتيك المركز لتعطي غاز لا يتم الكشف عنه بواسطة محلول ثاني كرومات البوتاسيوم المحمضة بحمض الكبريتيك ؟", correctText: "كلوريد الفضة.", wrongOptions: ["نيتريت الحديد II", "بروميد البوتاسيوم.", "يوديد الصوديوم."] },
+                { q: "أجريت التجارب الموضحة:<br>- أُمرّ غاز <bdi class='chem'>HBr</bdi> في الحمض (1) المركز الساخن فتصاعدت أبخرة برتقالية.<br>- تعريض ساق مبللة بالنشادر لأبخرة حمض (2) فتكونت سحب بيضاء.<br>- إضافة محلول <bdi class='chem'>Ba(NO<sub>3</sub>)<sub>2</sub></bdi> إلى محلول حمض (3) المخفف فتكون راسب أبيض.<br>أي مما يلي يعبر عن الأحماض (1) ، (2) ، (3)؟", correctText: "الحمض (1) : حمض كبريتيك ، الحمض (2) : حمض هيدروكلوريك ، الحمض (3) : حمض فوسفوريك.", wrongOptions: ["الحمض (1) : حمض هيدروكلوريك ، الحمض (2) : حمض فوسفوريك ، الحمض (3) : حمض نيتريك .", "الحمض (1) : حمض نيتريك ، الحمض (2) : حمض كبريتيك ، الحمض (3) : حمض فوسفوريك.", "الحمض (1) : حمض كبريتيك ، الحمض (2) : حمض هيدروكلوريك ، الحمض (3) : حمض نيتريك."] },
+                { q: "ملحان <bdi class='chem'>Na<sub>2</sub>X</bdi> و <bdi class='chem'>NaY</bdi>: إضافة <bdi class='chem'>HCl</bdi> للصلب صعد غازاً مع <bdi class='chem'>Na<sub>2</sub>X</bdi> ولم يصعد غازاً مع <bdi class='chem'>NaY</bdi>. إضافة <bdi class='chem'>AgNO<sub>3</sub></bdi> للمحلول كون <bdi class='chem'>Ag<sub>2</sub>X</bdi> و <bdi class='chem'>AgY</bdi>. أي مما يلي يعبر عن الأنيون أو ملح الفضة؟", correctText: "الأنيون (X) يُحتمل أن يكون كبريتيت ، و <bdi class='chem'>Ag<sub>2</sub>X</bdi> راسب أبيض .", wrongOptions: ["الأنيون (Y) يُحتمل أن يكون يوديد و <bdi class='chem'>AgY</bdi> راسب أسود.", "الأنيون (X) يُحتمل أن يكون كبريتيد ، و <bdi class='chem'>Ag<sub>2</sub>X</bdi> راسب أبيض .", "الأنيون (Y) يُحتمل أن يكون بروميد ، و <bdi class='chem'>AgY</bdi> راسب أسود."] },
+                { q: "عند إضافة حمض الكبريتيك المركز إلى الملح (X) مع التسخين يتصاعد غاز (Y) ويكون الراسب (Z)، ما الصيغة الكيميائية للمواد (X, Y, Z)؟", correctText: "<bdi class='chem'>Pb(NO<sub>3</sub>)<sub>2</sub> : (X)</bdi> ، <bdi class='chem'>NO<sub>2</sub> : (Y)</bdi> ، <bdi class='chem'>PbSO<sub>4</sub> : (Z)</bdi>", wrongOptions: ["<bdi class='chem'>Na<sub>2</sub>SO<sub>4</sub> : (X)</bdi> ، <bdi class='chem'>CO : (Y)</bdi> ، <bdi class='chem'>Na<sub>2</sub>SO<sub>4</sub> : (Z)</bdi>", "<bdi class='chem'>KCl : (X)</bdi> ، <bdi class='chem'>Cl<sub>2</sub> : (Y)</bdi> ، <bdi class='chem'>K<sub>2</sub>SO<sub>4</sub> : (Z)</bdi>", "<bdi class='chem'>CuBr<sub>2</sub> : (X)</bdi> ، <bdi class='chem'>Br<sub>2</sub> : (Y)</bdi> ، <bdi class='chem'>CuSO<sub>4</sub> : (Z)</bdi>"] },
+                { q: "أي أزواج الأملاح التالية يمكن استخدام حمض الهيدروكلوريك للتمييز بينها ؟", correctText: "<bdi class='chem'>Na<sub>3</sub>PO<sub>4</sub> - Na<sub>2</sub>SO<sub>3</sub></bdi>", wrongOptions: ["<bdi class='chem'>NaBr - NaCl</bdi>", "<bdi class='chem'>Na<sub>2</sub>CO<sub>3</sub> - NaHCO<sub>3</sub></bdi>", "<bdi class='chem'>NaNO<sub>3</sub> - NaI</bdi>"] },
+                { q: "عند إضافة محلول كلوريد الباريوم إلى محلولين لملحين (Y) ، (X) كل على حده تكون راسب مع كل منهما يذوب في حمض الهيدروكلوريك المخفف. فإن أنيوني الملحين (Y) ، (X) هما:", correctText: "<bdi class='chem'>CO<sub>3</sub><sup>2-</sup> : (Y)</bdi> , <bdi class='chem'>PO<sub>4</sub><sup>3-</sup> : (X)</bdi>", wrongOptions: ["<bdi class='chem'>SO<sub>4</sub><sup>2-</sup> : (Y)</bdi> , <bdi class='chem'>PO<sub>4</sub><sup>3-</sup> : (X)</bdi>", "<bdi class='chem'>CO<sub>3</sub><sup>2-</sup> : (Y)</bdi> , <bdi class='chem'>SO<sub>4</sub><sup>2-</sup> : (X)</bdi>", "<bdi class='chem'>NO<sub>3</sub><sup>-</sup> : (Y)</bdi> , <bdi class='chem'>SO<sub>4</sub><sup>2-</sup> : (X)</bdi>"] },
+                { q: "عند إضافة حمض كبريتيك مركز ساخن إلى الأملاح (X), (Y), (Z): في الملح (X) تصاعد غاز عديم اللون، في الملح (Y) أبخرة تصفر ورقة مبللة بالنشا، في الملح (Z) لم تظهر مشاهدات. فإن الأنيونات هي:", correctText: "<bdi class='chem'>X: Cl<sup>-</sup></bdi> , <bdi class='chem'>Y: Br<sup>-</sup></bdi> , <bdi class='chem'>Z: SO<sub>4</sub><sup>2-</sup></bdi>", wrongOptions: ["<bdi class='chem'>X: CO<sub>3</sub><sup>2-</sup></bdi> , <bdi class='chem'>Y: Br<sup>-</sup></bdi> , <bdi class='chem'>Z: I<sup>-</sup></bdi>", "<bdi class='chem'>X: Br<sup>-</sup></bdi> , <bdi class='chem'>Y: Cl<sup>-</sup></bdi> , <bdi class='chem'>Z: PO<sub>4</sub><sup>3-</sup></bdi>", "<bdi class='chem'>X: I<sup>-</sup></bdi> , <bdi class='chem'>Y: Br<sup>-</sup></bdi> , <bdi class='chem'>Z: Cl<sup>-</sup></bdi>"] },
+                { q: "من المخطط: تفاعل <bdi class='chem'>BaCl<sub>2</sub></bdi> مع محلول X يعطي راسب A يذوب في الأحماض المخففة، ومع محلول Y يعطي راسب B يذوب في الأحماض المخففة. أي مما يلي يُعد صحيحاً؟", correctText: "المحلول (X) : <bdi class='chem'>Na<sub>2</sub>CO<sub>3</sub></bdi> ، الراسب (A) : <bdi class='chem'>Ba<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub></bdi>", wrongOptions: ["المحلول (X) : <bdi class='chem'>Na<sub>2</sub>SO<sub>4</sub></bdi> ، الراسب (A) : <bdi class='chem'>Ba<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub></bdi>", "المحلول (X) : <bdi class='chem'>Na<sub>2</sub>CO<sub>3</sub></bdi> ، الراسب (A) : <bdi class='chem'>BaSO<sub>4</sub></bdi>", "المحلول (X) : <bdi class='chem'>Na<sub>2</sub>SO<sub>4</sub></bdi> ، الراسب (A) : <bdi class='chem'>BaCO<sub>3</sub></bdi>"] },
+                { q: "عند إضافة <bdi class='chem'>H<sub>2</sub>SO<sub>4</sub></bdi> المركز الساخن للملح X تصاعدت أبخرة تزرق ورقة مبللة بالنشا، وإضافة <bdi class='chem'>BaCl<sub>2</sub></bdi> لمحلول Y كونت راسباً أبيض يذوب في HCl المخفف. أي خيار يوضح ناتج إضافة <bdi class='chem'>AgNO<sub>3</sub></bdi> إلى محلولي X و Y؟", correctText: "في محلول X: راسب أصفر لا يذوب في النشادر | في محلول Y: راسب أصفر يذوب في النشادر", wrongOptions: ["في محلول X: راسب أصفر يذوب في النشادر | في محلول Y: راسب أصفر لا يذوب في النشادر", "في محلول X: راسب أبيض مصفر | في محلول Y: راسب أصفر لا يذوب في النشادر", "في محلول X: راسب أبيض يذوب في النشادر | في محلول Y: راسب أصفر يذوب في النشادر"] },
+                { q: "عند إضافة محلول كلوريد الباريوم إلى محلولي الملحين (B) ، (A) كل على حده ، تكون راسب مع محلول (A) ولم يتكون راسب مع محلول (B)، فيكون أنيوني الملحين على الترتيب:", correctText: "أنيون الملح (A) : كبريتات ، أنيون الملح (B) : نترات .", wrongOptions: ["أنيون الملح (A) : كبريتات ، أنيون الملح (B) : كربونات .", "أنيون الملح (A) : نترات ، أنيون الملح (B) : بيكربونات.", "أنيون الملح (A) : كلوريد ، أنيون الملح (B) : كربونات ."] },
+                { q: "أي من الأيونات التالية يكون راسب أبيض مع محلول كلوريد الباريوم ؟", correctText: "<bdi class='chem'>Ca<sup>2+</sup> / PO<sub>4</sub><sup>3-</sup></bdi>", wrongOptions: ["<bdi class='chem'>Ag<sup>+</sup> / SO<sub>4</sub><sup>2-</sup></bdi>", "<bdi class='chem'>Na<sup>+</sup> / NO<sub>3</sub><sup>-</sup></bdi>", "<bdi class='chem'>Pb<sup>2+</sup> / HCO<sub>3</sub><sup>-</sup></bdi>"] },
+                { q: "للتمييز بين ملحي كبريتيت الصوديوم وكبريتات الصوديوم يمكن استخدام كل مما يأتي ماعدا:", correctText: "محلول نترات البوتاسيوم.", wrongOptions: ["حمض الهيدروكلوريك المخفف.", "حمض الكبريتيك المركز.", "حمض الهيدروبروميك المخفف."] },
+                { q: "يمكن التمييز بين نيتريت البوتاسيوم ونترات البوتاسيوم بواسطة كل مما يأتي ماعدا:", correctText: "محلول هيدروكسيد الصوديوم.", wrongOptions: ["محلول برمنجنات البوتاسيوم المحمض.", "محلول ثاني كرومات البوتاسيوم المحمضة.", "حمض الهيدروكلوريك المخفف."] },
+                { q: "أي مما يلي لا يفضل استخدامه للتمييز بين أنيوني النترات والنيتريت في أملاحهم ؟", correctText: "حمض كبريتيك مركز ساخن.", wrongOptions: ["حمض هيدروكلوريك مخفف .", "محلول برمنجانات بوتاسيوم محمضة.", "كبريتات حديد II مع قطرات حمض كبريتيك مركز."] },
+                { q: "أي مما يلي لا يميز بين الكاشف الرئيسي لأيون النيتريت والكاشف الرئيسي لأيون النترات ؟", correctText: "كلوريد الباريوم.", wrongOptions: ["كلوريد الصوديوم.", "يوديد الصوديوم.", "ثيوكبريتات الصوديوم."] },
+                { q: "يمكن التمييز بين محلولي حمض الهيدروكلوريك وحمض الكبريتيك باستخدام:", correctText: "نيتريت الصوديوم.", wrongOptions: ["محلول النشادر.", "فوسفات الصوديوم.", "كبريتات الصوديوم."] },
+                { q: "للتمييز بين حمض الهيدروكلوريك المخفف وحمض الكبريتيك المركز يمكن استخدام أي مما يلي:", correctText: "ملح كلوريد الصوديوم أو برادة الحديد.", wrongOptions: ["ملح كربونات الصوديوم أو ملح بيكربونات الصوديوم.", "ملح كبريتات الصوديوم أو ملح كبريتيت الصوديوم.", "محلول هيدروكسيد الصوديوم أو محلول هيدروكسيد البوتاسيوم."] },
+                { q: "أي مما يلي لا يستخدم للتمييز بين غاز أكسيد النيتريك وغاز كلوريد الهيدروجين ؟", correctText: "محلول كلوريد صوديوم.", wrongOptions: ["تعريض كل منهما على حده للهواء.", "ساق مبللة بالنشادر.", "برمنجنات بوتاسيوم محمضة."] },
+                { q: "يمكن لكاتيون الباريوم الكشف عن كل مما يأتي ماعدا:", correctText: "الكلوريد.", wrongOptions: ["الكربونات.", "الكبريتات.", "الفوسفات."] },
+                { q: "يمكن التمييز بين كبريتات الصوديوم وكلوريد الصوديوم باستخدام:", correctText: "<bdi class='chem'>Ba(NO<sub>3</sub>)<sub>2</sub></bdi>", wrongOptions: ["<bdi class='chem'>NaOH</bdi>", "<bdi class='chem'>BaSO<sub>4</sub></bdi>", "<bdi class='chem'>KCl</bdi>"] },
+                { q: "أي مما يلي يستخدم للتمييز بين الملح الصلب لكبريتيد الصوديوم وكبريتات الصوديوم ؟", correctText: "<bdi class='chem'>HCl<sub>(aq)</sub></bdi>", wrongOptions: ["<bdi class='chem'>AgNO<sub>3(aq)</sub></bdi>", "<bdi class='chem'>Ca(OH)<sub>2(aq)</sub></bdi>", "<bdi class='chem'>NaOH<sub>(aq)</sub></bdi>"] },
+                { q: "عند إضافة <bdi class='chem'>H<sub>2</sub>SO<sub>4</sub></bdi> المركز الساخن للأملاح الصلبة: A تصاعد غاز سحب بيضاء مع النشادر، B تصاعدت أبخرة تصفر النشا، C أبخرة تزرق النشا، D أبخرة تزداد بالنحاس. أي خيار صحيح؟", correctText: "(A) ملح كلوريد ، (D) ملح نترات .", wrongOptions: ["(B) ملح بروميد ، (C) ملح نترات.", "(A) ملح كلوريد ، (D) ملح يوديد.", "(A) ملح نترات ، (C) ملح بروميد ."] }
+            ],
+
+            "تفاعلات الترسيب وأملاح الفضة وخلات الرصاص": [
+                { q: "أي مما يلي لا يمكن أن يستخدم للتمييز بين راسب كربونات الكالسيوم وراسب فوسفات الفضة ؟", correctText: "إضافة محلول <bdi class='chem'>KMnO<sub>4</sub></bdi> المحمضة إلى كل منهما .", wrongOptions: ["اختلاف لون الراسب في كل منهما عن الآخر.", "إضافة ماء مذاب به ثاني أكسيد الكربون.", "إضافة محلول هيدروكسيد الأمونيوم <bdi class='chem'>NH<sub>4</sub>OH</bdi>."] },
+                { q: "ثلاثة محاليل أملاح أضيف لكل منها محلول الملح (X) فتكون: راسب أبيض يسود بالتسخين مع (A)، وأصفر لا يذوب في النشادر مع (B)، وأصفر يذوب في النشادر مع (C). فإن الأنيونات والكاشف تكون:", correctText: "<bdi class='chem'>X: AgNO<sub>3</sub></bdi> , <bdi class='chem'>A: SO<sub>3</sub><sup>2-</sup></bdi> , <bdi class='chem'>B: I<sup>-</sup></bdi> , <bdi class='chem'>C: PO<sub>4</sub><sup>3-</sup></bdi>", wrongOptions: ["<bdi class='chem'>X: AgNO<sub>3</sub></bdi> , <bdi class='chem'>A: SO<sub>3</sub><sup>2-</sup></bdi> , <bdi class='chem'>B: PO<sub>4</sub><sup>3-</sup></bdi> , <bdi class='chem'>C: I<sup>-</sup></bdi>", "<bdi class='chem'>X: KMnO<sub>4</sub></bdi> , <bdi class='chem'>A: I<sup>-</sup></bdi> , <bdi class='chem'>B: SO<sub>3</sub><sup>2-</sup></bdi> , <bdi class='chem'>C: PO<sub>4</sub><sup>3-</sup></bdi>", "<bdi class='chem'>X: Na<sub>2</sub>S<sub>4</sub>O<sub>6</sub></bdi> , <bdi class='chem'>A: PO<sub>4</sub><sup>3-</sup></bdi> , <bdi class='chem'>B: Cl<sup>-</sup></bdi> , <bdi class='chem'>C: NO<sub>3</sub><sup>-</sup></bdi>"] },
+                { q: "عند إضافة محلول <bdi class='chem'>AgNO<sub>3</sub></bdi> إلى محلولي الملحين (Y) ، (X) تكون راسب أصفر في كل منهما، وباستخدام محلول النشادر اختفى الراسب في (Y) وظل كما هو في (X)، فإن الملحين هما:", correctText: "<bdi class='chem'>(X): NaI , (Y): Na<sub>3</sub>PO<sub>4</sub></bdi>", wrongOptions: ["<bdi class='chem'>(X): NaNO<sub>3</sub> , (Y): Na<sub>2</sub>SO<sub>4</sub></bdi>", "<bdi class='chem'>(X): NaCl , (Y): NaBr</bdi>", "<bdi class='chem'>(X): NaNO<sub>2</sub> , (Y): NaNO<sub>3</sub></bdi>"] },
+                { q: "عند إضافة محلول نترات الفضة إلى محلولي ملحين (B) ، (A) تكون راسب أصفر في كل منهما. أي مما يلي يستخدم للتمييز بين الراسبين الناتجين ؟", correctText: "محلول هيدروكسيد الأمونيوم.", wrongOptions: ["محلول كلوريد الباريوم.", "محلول هيدروكسيد الصوديوم.", "محلول كبريتات الماغنسيوم."] },
+                { q: "ملحان يذوبان في الماء وعند إضافة محلول نترات الفضة يتكون راسب أصفر في كل منهما، أحدهما يذوب في هيدروكسيد الأمونيوم والآخر لا يذوب، فإن الملحين هما:", correctText: "فوسفات الصوديوم ، يوديد الصوديوم.", wrongOptions: ["فوسفات الصوديوم ، بروميد الصوديوم.", "كلوريد الصوديوم ، يوديد الصوديوم.", "كلوريد الصوديوم ، بروميد الصوديوم."] },
+                { q: "محلولا A و B لأملاح البوتاسيوم أضيف لهما نترات الفضة فتكون راسب أصفر في كل منهما، وبإضافة حمض النيتريك ذاب راسب A ولم يذب راسب B. فإن الأنيونات على الترتيب:", correctText: "أنيون الملح (A) هو الفوسفات ، وأنيون الملح (B) هو اليوديد.", wrongOptions: ["أنيون الملح (A) هو البروميد ، وأنيون الملح (B) هو الكلوريد.", "أنيون الملح (A) هو الكلوريد ، وأنيون الملح (B) هو البروميد.", "أنيون الملح (A) هو اليوديد ، وأنيون الملح (B) هو الفوسفات."] },
+                { q: "أي من أزواج الأيونات التالية يستخدم للكشف عن أسيتات الرصاص II؟", correctText: "<bdi class='chem'>S<sup>2-</sup> , SO<sub>4</sub><sup>2-</sup></bdi>", wrongOptions: ["<bdi class='chem'>S<sup>2-</sup> , K<sup>+</sup></bdi>", "<bdi class='chem'>NH<sub>4</sub><sup>+</sup> , SO<sub>4</sub><sup>2-</sup></bdi>", "<bdi class='chem'>Cl<sup>-</sup> , NO<sub>3</sub><sup>-</sup></bdi>"] },
+                { q: "أنيونان (A) و (B) عند إضافة خلات الرصاص II يتكون راسب أسود مع (A) وراسب أبيض مع (B)، فيكون الأنيونان هما:", correctText: "<bdi class='chem'>S<sup>2-</sup> : (A)</bdi> ، <bdi class='chem'>SO<sub>4</sub><sup>2-</sup> : (B)</bdi>", wrongOptions: ["<bdi class='chem'>SO<sub>4</sub><sup>2-</sup> : (A)</bdi> ، <bdi class='chem'>S<sup>2-</sup> : (B)</bdi>", "<bdi class='chem'>S<sub>2</sub>O<sub>3</sub><sup>2-</sup> : (A)</bdi> ، <bdi class='chem'>SO<sub>3</sub><sup>2-</sup> : (B)</bdi>", "<bdi class='chem'>SO<sub>3</sub><sup>2-</sup> : (A)</bdi> ، <bdi class='chem'>S<sub>2</sub>O<sub>3</sub><sup>2-</sup> : (B)</bdi>"] },
+                { q: "أي مما يلي لا يكون راسب عند إضافة محلول خلات الرصاص II إلى محلول ملحه ؟", correctText: "<bdi class='chem'>NaNO<sub>3</sub></bdi>", wrongOptions: ["<bdi class='chem'>NaCl</bdi>", "<bdi class='chem'>Na<sub>2</sub>S</bdi>", "<bdi class='chem'>Na<sub>2</sub>SO<sub>4</sub></bdi>"] },
+                { q: "ماذا يحدث عند إضافة محلول كلوريد الصوديوم إلى محلولي بيكربونات الصوديوم وبيكربونات الفضة ؟", correctText: "يتفاعل مع بيكربونات الفضة فقط، ويعطي راسب أبيض.", wrongOptions: ["لا يتفاعل مع أي منهما .", "يتفاعل مع بيكربونات الصوديوم فقط، ويعطي راسب أبيض.", "يتفاعل مع كل منهما ويعطي راسب أبيض."] },
+                { q: "كاتيون الفضة <bdi class='chem'>Ag<sup>+</sup></bdi> يكون مركبات شحيحة الذوبان في الماء مع جميع الأنيونات التالية ماعدا:", correctText: "أنيون البيكربونات <bdi class='chem'>HCO<sub>3</sub><sup>-</sup></bdi>", wrongOptions: ["أنيون الفوسفات <bdi class='chem'>PO<sub>4</sub><sup>3-</sup></bdi>", "أنيون اليوديد <bdi class='chem'>I<sup>-</sup></bdi>", "أنيون البروميد <bdi class='chem'>Br<sup>-</sup></bdi>"] },
+                { q: "جميع الأحماض التالية تكون راسب مع محلول نترات الفضة ماعدا:", correctText: "حمض النيتريك المخفف <bdi class='chem'>HNO<sub>3</sub></bdi>", wrongOptions: ["حمض الكبريتوز المخفف <bdi class='chem'>H<sub>2</sub>SO<sub>3</sub></bdi>", "حمض الهيدروكلوريك المخفف <bdi class='chem'>HCl</bdi>", "حمض الفوسفوريك المخفف <bdi class='chem'>H<sub>3</sub>PO<sub>4</sub></bdi>"] },
+                { q: "يمكن استخدام نترات الفضة للتمييز بين كل زوج من الأزواج التالية ماعدا:", correctText: "<bdi class='chem'>KI / K<sub>3</sub>PO<sub>4</sub></bdi>", wrongOptions: ["<bdi class='chem'>Na<sub>2</sub>S / Na<sub>2</sub>SO<sub>3</sub></bdi>", "<bdi class='chem'>CuCl<sub>2</sub> / Na<sub>3</sub>PO<sub>4</sub></bdi>", "<bdi class='chem'>KBr / KCl</bdi>"] },
+                { q: "عند إضافة نترات الفضة إلى محلولي الملحين لوحظ: راسب أبيض يسود بالتسخين مع (A)، وراسب أبيض يذوب في محلول النشادر مع (B). فإن أنيوني الملحين هما:", correctText: "<bdi class='chem'>(A): SO<sub>3</sub><sup>2-</sup> , (B): Cl<sup>-</sup></bdi>", wrongOptions: ["<bdi class='chem'>(A): Br<sup>-</sup> , (B): S<sub>2</sub>O<sub>3</sub><sup>2-</sup></bdi>", "<bdi class='chem'>(A): SO<sub>3</sub><sup>2-</sup> , (B): Br<sup>-</sup></bdi>", "<bdi class='chem'>(A): Cl<sup>-</sup> , (B): S<sub>2</sub>O<sub>3</sub><sup>2-</sup></bdi>"] }
+            ],
+
+            "كيمياء الكاتيونات والمجموعات التحليلية": [
+                { q: "أي مما يلي لا يميز بين الكاشف الرئيسي لكاتيونات المجموعة التحليلية الأولى والمجموعة التحليلية الثالثة ؟", correctText: "محلول كلوريد الصوديوم.", wrongOptions: ["محلول كلوريد الحديد II", "محلول كبريتات الحديد III", "محلول كبريتات الألومنيوم."] },
+                { q: "أي من الكاتيونات التالية تكون راسب عند إضافة حمض الهيدروكلوريك المخفف إلى محلول يحتوي على تركيزات متساوية منها ؟", correctText: "<bdi class='chem'>Pb<sup>2+</sup></bdi>", wrongOptions: ["<bdi class='chem'>Cu<sup>2+</sup></bdi>", "<bdi class='chem'>Ca<sup>2+</sup></bdi>", "<bdi class='chem'>Fe<sup>2+</sup></bdi>"] },
+                { q: "أي محاليل المركبات التالية يكون راسب مع <bdi class='chem'>Pb(NO<sub>3</sub>)<sub>2(aq)</sub></bdi> ، بينما لا يكون راسب مع <bdi class='chem'>Ba(NO<sub>3</sub>)<sub>2(aq)</sub></bdi> ؟", correctText: "<bdi class='chem'>NaCl</bdi>", wrongOptions: ["<bdi class='chem'>Na<sub>2</sub>SO<sub>4</sub></bdi>", "<bdi class='chem'>CH<sub>3</sub>COONa</bdi>", "<bdi class='chem'>Na<sub>2</sub>CO<sub>3</sub></bdi>"] },
+                { q: "محلول X: لا يحدث تفاعل مع <bdi class='chem'>HCl</bdi> المخفف ولا <bdi class='chem'>H<sub>2</sub>SO<sub>4</sub></bdi> المخفف، ولا يظهر راسب عند إضافة وفرة من <bdi class='chem'>NaOH</bdi> والترشيح. فإن المحلول يحتوي على:", correctText: "<bdi class='chem'>Al<sup>3+</sup></bdi>", wrongOptions: ["<bdi class='chem'>Ag<sup>+</sup></bdi>", "<bdi class='chem'>Pb<sup>2+</sup></bdi>", "<bdi class='chem'>Fe<sup>2+</sup></bdi>"] },
+                { q: "أي المحاليل التالية يمكن إضافتها إلى محلول يحتوي على (<bdi class='chem'>Al<sup>3+</sup>, Fe<sup>3+</sup>, Ca<sup>2+</sup></bdi>) لترسيب كاتيون واحد فقط ؟", correctText: "وفرة من هيدروكسيد صوديوم.", wrongOptions: ["كربونات صوديوم.", "وفرة من هيدروكسيد أمونيوم.", "كلوريد بوتاسيوم."] },
+                { q: "محلول يحتوي على (<bdi class='chem'>Cu<sup>2+</sup>, Pb<sup>2+</sup>, Ca<sup>2+</sup></bdi>)، أي مما يلي يمكن إضافته للحصول على محلول يحتوي على كاتيون النحاس فقط ؟", correctText: "حمض كبريتيك مخفف.", wrongOptions: ["محلول كربونات صوديوم.", "محلول نترات صوديوم.", "حمض هيدروكلوريك مخفف."] },
+                { q: "محلول يحتوي كاتيونات (<bdi class='chem'>Ag<sup>+</sup>, Cu<sup>2+</sup>, Pb<sup>2+</sup>, Ca<sup>2+</sup></bdi>). ما الترتيب الصحيح للخطوات اللازمة للحصول على محلول يحتوي كاتيون النحاس فقط ؟", correctText: "إضافة حمض الكبريتيك - الترشيح - إضافة محلول كبريتيد الصوديوم - الترشيح.", wrongOptions: ["إضافة حمض الهيدروكلوريك - الترشيح - إضافة غاز كبريتيد الهيدروجين - الترشيح .", "إضافة غاز كبريتيد الهيدروجين - الترشيح - إضافة حمض الهيدروكلوريك - الترشيح .", "إضافة محلول كلوريد الصوديوم - الترشيح - إضافة محلول كبريتات الماغنسيوم - الترشيح."] },
+                { q: "خليط من محاليل نترات (النحاس II والرصاص II والكالسيوم). أي مما يلي يعبر عن الترتيب الصحيح لفصل كل كاتيون على حده ؟", correctText: "حمض الهيدروكلوريك ثم حمض الكبريتيك .", wrongOptions: ["محلول كربونات الصوديوم ثم إمرار غاز كبريتيد الهيدروجين.", "حمض الكبريتيك مخفف ثم محلول نترات الفضة.", "حمض الهيدروكلوريك ثم محلول كربونات الصوديوم."] },
+                { q: "محلول يحتوي على أيونات (<bdi class='chem'>Cu<sup>2+</sup>, K<sup>+</sup>, Ag<sup>+</sup></bdi>). ما لون الرواسب المحتمل تكونها عند إضافة وفرة من <bdi class='chem'>HCl</bdi> ثم إمرار غاز <bdi class='chem'>H<sub>2</sub>S</bdi> ؟", correctText: "خليط من راسب أبيض وأسود.", wrongOptions: ["راسب أسود.", "راسب أبيض.", "لا يتكون أي راسب ."] },
+                { q: "محلول كربونات الأمونيوم قد يستخدم في التعرف على كل الكاتيونات الآتية ماعدا:", correctText: "<bdi class='chem'>Na<sup>+</sup></bdi>", wrongOptions: ["<bdi class='chem'>Ag<sup>+</sup></bdi>", "<bdi class='chem'>Mg<sup>2+</sup></bdi>", "<bdi class='chem'>Ca<sup>2+</sup></bdi>"] },
+                { q: "عند إمرار غاز له رائحة كريهة في محلول <bdi class='chem'>CuCl<sub>2</sub></bdi> محمض بـ <bdi class='chem'>HCl</bdi> ثم إضافة محلول <bdi class='chem'>AgNO<sub>3</sub></bdi> إلى نواتج التفاعل، أي خيار صحيح؟", correctText: "يتكون خليط من راسب أبيض وراسب أسود.", wrongOptions: ["يتكون خليط من رواسب سوداء .", "يتكون خليط من رواسب بيضاء.", "يتكون خليط من راسب أصفر وراسب أسود."] },
+                { q: "المركبات: A: <bdi class='chem'>Al(NO<sub>3</sub>)<sub>3</sub></bdi> ، B: <bdi class='chem'>NH<sub>4</sub>OH</bdi> ، C: <bdi class='chem'>FeSO<sub>4</sub></bdi> ، D: <bdi class='chem'>HCl</bdi>. أي الاختيارات الآتية صحيحة ؟", correctText: "(B) يكشف عن كاتيون (C) وأنيون (D)", wrongOptions: ["(D) يكشف عن أنيون (B) وأنيون (A)", "(C) يكشف عن كاتيون (B) وكاتيون (A)", "(A) يكشف عن أنيون (D) وأنيون (C)"] },
+                { q: "من المخطط: تفاعل <bdi class='chem'>CaCl<sub>2</sub></bdi> مع مركبات (1) و (2) و (3) ليعطي مع كل منها راسباً أبيض. فإن المركبات تكون:", correctText: "<bdi class='chem'>(1): AgNO<sub>3</sub></bdi> ، <bdi class='chem'>(2): (NH<sub>4</sub>)<sub>2</sub>CO<sub>3</sub></bdi> ، <bdi class='chem'>(3): Na<sub>2</sub>SO<sub>4</sub></bdi>", wrongOptions: ["<bdi class='chem'>(1): Pb(NO<sub>3</sub>)<sub>2</sub></bdi> ، <bdi class='chem'>(2): NaHCO<sub>3</sub></bdi> ، <bdi class='chem'>(3): Na<sub>2</sub>SO<sub>4</sub></bdi>", "<bdi class='chem'>(1): Na<sub>2</sub>SO<sub>4</sub></bdi> ، <bdi class='chem'>(2): NH<sub>4</sub>NO<sub>3</sub></bdi> ، <bdi class='chem'>(3): K<sub>2</sub>SO<sub>4</sub></bdi>", "<bdi class='chem'>(1): AgNO<sub>3</sub></bdi> ، <bdi class='chem'>(2): K<sub>2</sub>SO<sub>4</sub></bdi> ، <bdi class='chem'>(3): KHCO<sub>3</sub></bdi>"] },
+                { q: "من المخطط: تفاعل <bdi class='chem'>CuCl<sub>2</sub></bdi> مع <bdi class='chem'>K<sub>2</sub>CO<sub>3</sub></bdi> يعطي راسب (Z) ، وتفاعله مع (X) يعطي راسب أسود (Y). أي مما يلي يعبر عن المواد ؟", correctText: "<bdi class='chem'>X: HCl + H<sub>2</sub>S</bdi> ، <bdi class='chem'>Y: CuS</bdi> ، <bdi class='chem'>Z: CuCO<sub>3</sub></bdi>", wrongOptions: ["<bdi class='chem'>X: AgNO<sub>3</sub></bdi> ، <bdi class='chem'>Y: AgCl</bdi> ، <bdi class='chem'>Z: KCl</bdi>", "<bdi class='chem'>X: HCl + H<sub>2</sub>S</bdi> ، <bdi class='chem'>Y: CuCl<sub>2</sub></bdi> ، <bdi class='chem'>Z: CuCO<sub>3</sub></bdi>", "<bdi class='chem'>X: Na<sub>2</sub>S</bdi> ، <bdi class='chem'>Y: NaCl</bdi> ، <bdi class='chem'>Z: KCl</bdi>"] },
+                { q: "من المخطط: تفاعل <bdi class='chem'>CuCl<sub>2</sub></bdi> مع محاليل X و Z لتكوين راسب ورواسب أخرى. أي مما يلي يعبر عن (X, Y, Z)؟", correctText: "<bdi class='chem'>X: AgNO<sub>3(aq)</sub></bdi> ، <bdi class='chem'>Y: AgCl<sub>(s)</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>CO<sub>3(aq)</sub></bdi>", wrongOptions: ["<bdi class='chem'>X: Na<sub>2</sub>S<sub>(aq)</sub></bdi> ، <bdi class='chem'>Y: CuS<sub>(s)</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>CO<sub>3(aq)</sub></bdi>", "<bdi class='chem'>X: HCl + H<sub>2</sub>S</bdi> ، <bdi class='chem'>Y: CuS<sub>(s)</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>SO<sub>4(aq)</sub></bdi>", "<bdi class='chem'>X: AgNO<sub>3(aq)</sub></bdi> ، <bdi class='chem'>Y: AgCl<sub>(s)</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>SO<sub>4(aq)</sub></bdi>"] },
+                { q: "أي مما يلي يمكن استخدامه للكشف عن شقي كلوريد الكالسيوم في محلوله ؟", correctText: "نترات الفضة - كبريتات الصوديوم.", wrongOptions: ["نترات الفضة - هيدروكسيد الصوديوم.", "كلوريد الباريوم - نترات الصوديوم.", "كبريتات الباريوم - هيدروكسيد الأمونيوم."] },
+                { q: "كل التفاعلات التالية تستخدم للكشف عن الأنيونات ماعدا:", correctText: "إضافة حمض الكبريتيك المخفف إلى محلول نترات الكالسيوم.", wrongOptions: ["إضافة حمض الكبريتيك المركز إلى ملح كلوريد البوتاسيوم.", "إضافة حمض الهيدروكلوريك المخفف إلى ملح كبريتيت الصوديوم.", "إضافة محلول كبريتات الماغنسيوم إلى محلول كربونات البوتاسيوم."] },
+                { q: "يستخدم حمض <bdi class='chem'>HCl</bdi> المخفف في الكشف عن كاتيون ........ وأنيون ........", correctText: "<bdi class='chem'>Hg<sup>+</sup> / SO<sub>3</sub><sup>2-</sup></bdi>", wrongOptions: ["<bdi class='chem'>Ag<sup>+</sup> / SO<sub>4</sub><sup>2-</sup></bdi>", "<bdi class='chem'>Hg<sup>+</sup> / Br<sup>-</sup></bdi>", "<bdi class='chem'>Pb<sup>2+</sup> / PO<sub>4</sub><sup>3-</sup></bdi>"] },
+                { q: "في التفاعل: <bdi class='chem'>AgNO<sub>3</sub> + HCl → HNO<sub>3</sub> + AgCl</bdi>. يمكن اعتبار حمض الهيدروكلوريك كاشف لأيون ........ ونترات الفضة كاشف لأيون ........", correctText: "الفضة / الكلوريد.", wrongOptions: ["الكلوريد / الفضة.", "الفضة / النترات .", "النترات / الفضة."] }
+            ],
+
+            "الأسئلة التراكمية ومسائل التمييز والفصل المتقدمة": [
+                { q: "محلول يحتوي خليطاً من أنيونات (كبريتات، كلوريد، كبريتيد). ما الترتيب الصحيح للمحاليل المستخدمة لفصل هذه الأنيونات بالترشيح في صورة صلبة؟", correctText: "نترات النحاس - ترشيح - هيدروكسيد الكالسيوم - ترشيح - نترات الفضة - ترشيح .", wrongOptions: ["هيدروكسيد الكالسيوم - ترشيح - نترات الفضة - ترشيح - نترات النحاس - ترشيح .", "نترات الفضة - ترشيح - نترات النحاس - ترشيح - هيدروكسيد الكالسيوم - ترشيح .", "نترات الفضة - ترشيح - هيدروكسيد الكالسيوم - ترشيح - نترات النحاس - ترشيح ."] },
+                { q: "كل المحاليل التالية يمكن أن تستخدم للتمييز بين كبريتات الماغنسيوم وكلوريد الماغنسيوم ماعدا:", correctText: "حمض كبريتيك مركز ساخن.", wrongOptions: ["كلوريد باريوم.", "بيكربونات كالسيوم.", "حمض هيدروكلوريك مخفف."] },
+                { q: "ملحان (A) و (B): حمض الملح (A) يكشف عن كاتيون (B)، وحمض (B) يكشف عن أنيون (A). أي مما يلي يعبر عن الملحين؟", correctText: "الملح (A) : <bdi class='chem'>K<sub>2</sub>SO<sub>4</sub></bdi> ، الملح (B) : <bdi class='chem'>NaNO<sub>3</sub></bdi>", wrongOptions: ["الملح (A) : <bdi class='chem'>KCl</bdi> ، الملح (B) : <bdi class='chem'>CuSO<sub>4</sub></bdi>", "الملح (A) : <bdi class='chem'>H<sub>2</sub>SO<sub>4</sub></bdi> ، الملح (B) : <bdi class='chem'>KCl</bdi>", "الملح (A) : <bdi class='chem'>KCl</bdi> ، الملح (B) : <bdi class='chem'>AgNO<sub>3</sub></bdi>"] },
+                { q: "أذيب مخلوط ملحي صوديوم في الماء، فأعطى راسباً أبيض مع <bdi class='chem'>BaCl<sub>2</sub></bdi> وراسباً أبيض مع <bdi class='chem'>AgNO<sub>3</sub></bdi>. يشير ذلك إلى أن الأنيونين هما:", correctText: "أنيون الكبريتات وأنيون الكلوريد.", wrongOptions: ["أنيون الكبريتيت وأنيون الفوسفات.", "أنيون الفوسفات وأنيون الكبريتيد.", "أنيون اليوديد وأنيون الكبريتات."] },
+                { q: "محلول ملح (X) يكون راسب أبيض مع كل من: محلول <bdi class='chem'>BaCl<sub>2</sub></bdi>، ومحلول <bdi class='chem'>Na<sub>2</sub>CO<sub>3</sub></bdi>، ومحلول خلات الرصاص II. فيكون الملح (X) هو:", correctText: "كبريتات الماغنسيوم.", wrongOptions: ["كبريتات الصوديوم.", "فوسفات الصوديوم.", "كلوريد الكالسيوم."] },
+                { q: "يمكن الكشف عن غاز <bdi class='chem'>SO<sub>2</sub></bdi> وأيون النيتريت <bdi class='chem'>NO<sub>2</sub><sup>-</sup></bdi> باستخدام:", correctText: "عامل مؤكسد في وجود وسط حمضي.", wrongOptions: ["عامل مختزل في وجود وسط حمضي .", "عامل مؤكسد في وجود وسط قاعدي.", "عامل مختزل في وجود وسط قاعدي."] },
+                { q: "عند إضافة <bdi class='chem'>HCl</bdi> المخفف إلى ملحين مختلفين يتصاعد غاز من كل منهما وكلا الغازين قابل للأكسدة، فإن الملحين هما:", correctText: "<bdi class='chem'>KNO<sub>2</sub> - K<sub>2</sub>SO<sub>3</sub></bdi>", wrongOptions: ["<bdi class='chem'>KNO<sub>2</sub> - K<sub>2</sub>SO<sub>4</sub></bdi>", "<bdi class='chem'>KNO<sub>2</sub> - K<sub>2</sub>CO<sub>3</sub></bdi>", "<bdi class='chem'>KHCO<sub>3</sub> - K<sub>2</sub>S<sub>2</sub>O<sub>3</sub></bdi>"] },
+                { q: "أي مما يلي لا يميز بين كبريتات الماغنسيوم وكلوريد الماغنسيوم ؟", correctText: "حمض كبريتيك مركز ساخن", wrongOptions: ["محلول بيكربونات كالسيوم.", "محلول كلوريد باريوم", "محلول نترات نحاس."] },
+                { q: "الغاز الناتج من اتحاد الكبريت مع الأكسجين (<bdi class='chem'>SO<sub>2</sub></bdi>) ينتج من التفاعلات التالية ماعدا:", correctText: "تفاعل أكسيد الحديد III مع حمض الكبريتيك المركز.", wrongOptions: ["تسخين كبريتات الحديد II بمعزل عن الهواء.", "أكسدة يوديد الهيدروجين بواسطة حمض الكبريتيك.", "تفاعل الحديد مع حمض الكبريتك المركز."] },
+                { q: "فلزان وضعا في حمض مركز Z: مع الفلز X تكونت سحب بنية حمراء، ومع الفلز Y لم يحدث تغيير ملحوظ بالعين. ما المواد الثلاث؟", correctText: "<bdi class='chem'>X: Cu</bdi> ، <bdi class='chem'>Y: Fe</bdi> ، <bdi class='chem'>Z: HNO<sub>3</sub></bdi>", wrongOptions: ["<bdi class='chem'>X: Fe</bdi> ، <bdi class='chem'>Y: Cu</bdi> ، <bdi class='chem'>Z: H<sub>2</sub>SO<sub>4</sub></bdi>", "<bdi class='chem'>X: Fe</bdi> ، <bdi class='chem'>Y: Cu</bdi> ، <bdi class='chem'>Z: HNO<sub>3</sub></bdi>", "<bdi class='chem'>X: Cu</bdi> ، <bdi class='chem'>Y: Fe</bdi> ، <bdi class='chem'>Z: H<sub>2</sub>SO<sub>4</sub></bdi>"] },
+                { q: "ينطلق أكبر عدد من الغازات المختلفة عند:", correctText: "إضافة حمض الكبريتيك المركز لملح بروميد البوتاسيوم.", wrongOptions: ["إضافة حمض الهيدروكلوريك المخفف لملح بروميد البوتاسيوم", "إضافة حمض الكبريتيك المركز لملح كلوريد البوتاسيوم.", "إضافة محلول كلوريد الباريوم لمحلول فوسفات البوتاسيوم."] },
+                { q: "تتم التفاعلات: <bdi class='chem'>CaCl<sub>2</sub></bdi> + حمض غير ثابت B يعطي C + حمض مركز A، وتفاعل C مع <bdi class='chem'>H<sub>2</sub>SO<sub>4</sub></bdi> يعطي <bdi class='chem'>CaSO<sub>4</sub></bdi> + A + <bdi class='chem'>H<sub>2</sub>O</bdi>. فإن C و A هما:", correctText: "<bdi class='chem'>(A): HCl<sub>(g)</sub></bdi> ، <bdi class='chem'>(C): CaCO<sub>3</sub></bdi>", wrongOptions: ["<bdi class='chem'>(A): HCl<sub>(aq)</sub></bdi> ، <bdi class='chem'>(C): Ca(OH)<sub>2</sub></bdi>", "<bdi class='chem'>(A): HCl<sub>(g)</sub></bdi> ، <bdi class='chem'>(C): Ca(OH)<sub>2</sub></bdi>", "<bdi class='chem'>(A): HCl<sub>(aq)</sub></bdi> ، <bdi class='chem'>(C): CaCO<sub>3</sub></bdi>"] },
+                { q: "ثلاثة أملاح: مع الملح X تصاعد غاز عديم اللون يسهل أكسدته، ومع Y تكون راسب أبيض، ومع Z تصاعد غاز يسود ورقة بخلات الرصاص. فإن الأملاح هي:", correctText: "<bdi class='chem'>X: KNO<sub>2</sub></bdi> ، <bdi class='chem'>Y: Pb(NO<sub>3</sub>)<sub>2</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>S</bdi>", wrongOptions: ["<bdi class='chem'>X: NaNO<sub>2</sub></bdi> ، <bdi class='chem'>Y: AgNO<sub>3</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>SO<sub>3</sub></bdi>", "<bdi class='chem'>X: NH<sub>4</sub>Cl</bdi> ، <bdi class='chem'>Y: Ag<sub>2</sub>SO<sub>4</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>SO<sub>3</sub></bdi>", "<bdi class='chem'>X: NaNO<sub>3</sub></bdi> ، <bdi class='chem'>Y: Ba(NO<sub>3</sub>)<sub>2</sub></bdi> ، <bdi class='chem'>Z: Na<sub>2</sub>S</bdi>"] },
+                { q: "عند إضافة أسيتات الرصاص II إلى كل مما يأتي يتكون راسب ماعدا:", correctText: "محلول بيكربونات البوتاسيوم.", wrongOptions: ["محلول كلوريد الباريوم.", "غاز كبريتيد الهيدروجين.", "محلول كبريتات الصوديوم."] },
+                { q: "كل مما يأتي ينتج عنه راسب أبيض ماعدا:", correctText: "تفاعل محلول كلوريد الماغنسيوم مع محلول بيكربونات الصوديوم.", wrongOptions: ["تفاعل محلول كلوريد الكالسيوم مع محلول كبريتات الصوديوم.", "تفاعل محلول نترات الماغنسيوم مع محلول كربونات الصوديوم.", "تفاعل محلول كلوريد الكالسيوم مع محلول كربونات البوتاسيوم."] },
+                { q: "أي الأملاح التالية تكون راسب ويتصاعد غاز عند إضافة حمض الهيدروكلوريك إليها في الظروف المناسبة ؟", correctText: "<bdi class='chem'>Pb(NO<sub>2</sub>)<sub>2</sub></bdi>", wrongOptions: ["<bdi class='chem'>AgNO<sub>3</sub></bdi>", "<bdi class='chem'>HgNO<sub>3</sub></bdi>", "<bdi class='chem'>NaNO<sub>2</sub></bdi>"] },
+                { q: "أي من المركبات الآتية يُستخدم للكشف عن شقي ملح نترات الرصاص II؟", correctText: "حمض كبريتيك .", wrongOptions: ["حمض نيتريك .", "حمض هيدروكلوريك.", "حمض كربونيك ."] }
+            ]
+        };
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        let currentCategory = "كواشف وأنيونات الأحماض وكلوريد الباريوم";
+        let activeQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 7;
+        let skips = 3;
+        let isAnsweringBlocked = false;
+
+        let timerInterval = null;
+        let timeRemaining = 660;
+        let isPaused = false;
+
+        function setTheme(theme) {
+            document.body.className = `theme-${theme}`;
+            document.querySelectorAll(".theme-btn").forEach(btn => btn.classList.remove("active"));
+            const targetBtn = document.getElementById(`btn-theme-${theme}`);
+            if (targetBtn) targetBtn.classList.add("active");
+        }
+
+        function initCategoryTabs() {
+            const tabsContainer = document.getElementById("category-tabs");
+            tabsContainer.innerHTML = "";
+
+            const summaryBtn = document.createElement("button");
+            summaryBtn.className = `cat-btn summary-btn ${currentCategory === 'summary' ? 'active' : ''}`;
+            summaryBtn.innerText = "📚 بنك التلخيص والمفاهيم";
+            summaryBtn.onclick = () => openSummaryView();
+            tabsContainer.appendChild(summaryBtn);
+
+            Object.keys(rawQuestionBank).forEach(cat => {
+                const btn = document.createElement("button");
+                btn.className = `cat-btn ${cat === currentCategory ? 'active' : ''}`;
+                btn.innerText = cat;
+                btn.onclick = () => selectCategory(cat);
+                tabsContainer.appendChild(btn);
+            });
+        }
+
+        function openSummaryView() {
+            stopTimer();
+            currentCategory = "summary";
+            document.getElementById("game-view").style.display = "none";
+            document.getElementById("end-view").style.display = "none";
+            document.getElementById("summary-view").style.display = "block";
+            initCategoryTabs();
+            showSummaryTab('defs');
+        }
+
+        function returnToGame() {
+            document.getElementById("summary-view").style.display = "none";
+            document.getElementById("game-view").style.display = "block";
+            selectCategory("كواشف وأنيونات الأحماض وكلوريد الباريوم");
+        }
+
+        function showSummaryTab(tabKey) {
+            document.querySelectorAll(".sub-btn").forEach(b => b.classList.remove("active"));
+            if (event && event.target) {
+                event.target.classList.add("active");
+            }
+
+            const contentDiv = document.getElementById("summary-content");
+            contentDiv.innerHTML = "";
+
+            const items = summaryData[tabKey] || [];
+            items.forEach(item => {
+                const box = document.createElement("div");
+                box.className = "summary-item";
+                box.innerHTML = `<h4>${item.title}</h4><p>${item.desc}</p>`;
+                contentDiv.appendChild(box);
+            });
+        }
+
+        function selectCategory(cat) {
+            if (isAnsweringBlocked) return;
+            stopTimer();
+            currentCategory = cat;
+            document.getElementById("summary-view").style.display = "none";
+            document.getElementById("end-view").style.display = "none";
+            document.getElementById("game-view").style.display = "block";
+
+            initCategoryTabs();
+
+            const qCount = rawQuestionBank[cat].length;
+            let calculatedSeconds = qCount * 30;
+
+            const mins = Math.floor(calculatedSeconds / 60);
+            const secs = calculatedSeconds % 60;
+            const timeFormatted = `${mins} دقيقة ${secs > 0 ? `و ${secs} ثانية` : ''}`;
+
+            document.getElementById("cat-start-title").innerText = `قسم: ${cat}`;
+            document.getElementById("cat-start-info").innerHTML = `عدد الأسئلة: <strong>${qCount} سؤالاً</strong> | معدل الوقت: سؤالين لكل دقيقة | الوقت المحدد: <strong>${timeFormatted}</strong><br>لديك <strong>7 قلوب</strong> للمحاولة. هل أنت مستعد لخوض التحدي؟`;
+
+            document.getElementById("cat-start-screen").style.display = "block";
+            document.getElementById("quiz-active-area").style.display = "none";
+        }
+
+        function startCategoryQuiz() {
+            document.getElementById("cat-start-screen").style.display = "none";
+            document.getElementById("quiz-active-area").style.display = "block";
+
+            activeQuestions = shuffleArray(rawQuestionBank[currentCategory]);
+            currentQuestionIndex = 0;
+            isPaused = false;
+            updatePauseButtonUI();
+
+            const qCount = activeQuestions.length;
+            timeRemaining = qCount * 30;
+            updateTimerDisplay();
+            startTimer();
+
+            loadQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    timeRemaining--;
+                    updateTimerDisplay();
+
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        endGame('timeout');
+                    }
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeRemaining / 60);
+            const s = timeRemaining % 60;
+            document.getElementById("timer-val").innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function togglePauseGame() {
+            isPaused = !isPaused;
+            updatePauseButtonUI();
+
+            const optionsContainer = document.getElementById("options-container");
+            const skipBtn = document.getElementById("btn-skip");
+
+            if (isPaused) {
+                optionsContainer.style.opacity = "0.3";
+                optionsContainer.style.pointerEvents = "none";
+                skipBtn.disabled = true;
+                skipBtn.style.opacity = "0.5";
+            } else {
+                optionsContainer.style.opacity = "1";
+                optionsContainer.style.pointerEvents = "auto";
+                skipBtn.disabled = false;
+                skipBtn.style.opacity = "1";
+            }
+        }
+
+        function updatePauseButtonUI() {
+            const pauseBtn = document.getElementById("btn-pause");
+            if (isPaused) {
+                pauseBtn.innerText = "▶️ استئناف التحدي";
+                pauseBtn.classList.add("paused");
+            } else {
+                pauseBtn.innerText = "⏸️ إيقاف مؤقت";
+                pauseBtn.classList.remove("paused");
+            }
+        }
+
+        function loadQuestion() {
+            isAnsweringBlocked = false;
+
+            if (currentQuestionIndex >= activeQuestions.length) {
+                activeQuestions = shuffleArray(rawQuestionBank[currentCategory]);
+                currentQuestionIndex = 0;
+            }
+
+            const rawQ = activeQuestions[currentQuestionIndex];
+            document.getElementById("question-text").innerHTML = rawQ.q;
+
+            const allOptions = shuffleArray([rawQ.correctText, ...rawQ.wrongOptions]);
+            const correctIndex = allOptions.indexOf(rawQ.correctText);
+
+            rawQ.currentShuffledOptions = allOptions;
+            rawQ.currentCorrectIndex = correctIndex;
+
+            const optionsContainer = document.getElementById("options-container");
+            optionsContainer.innerHTML = "";
+
+            allOptions.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerHTML = opt;
+                btn.onclick = () => checkAnswer(idx, btn, correctIndex);
+                optionsContainer.appendChild(btn);
+            });
+
+            updateStatusBar();
+        }
+
+        function checkAnswer(selectedIdx, btnElement, correctIndex) {
+            if (isAnsweringBlocked || isPaused) return;
+            isAnsweringBlocked = true;
+
+            const allOptionButtons = document.querySelectorAll(".option-btn");
+
+            if (selectedIdx === correctIndex) {
+                btnElement.classList.add("correct");
+                score += 10;
+                playSound('correct');
+                confetti({ particleCount: 35, spread: 55, origin: { y: 0.8 } });
+            } else {
+                btnElement.classList.add("wrong");
+                allOptionButtons[correctIndex].classList.add("correct");
+                lives--;
+                playSound('wrong');
+            }
+
+            updateStatusBar();
+
+            setTimeout(() => {
+                if (lives <= 0) {
+                    endGame('lives');
+                } else {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }
+            }, 1200);
+        }
+
+        function skipQuestion() {
+            if (isAnsweringBlocked || skips <= 0 || isPaused) return;
+            skips--;
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function updateStatusBar() {
+            document.getElementById("score-val").innerText = score;
+            document.getElementById("lives-val").innerText = `${lives}/7`;
+            document.getElementById("skips-val").innerText = `${skips}/3`;
+
+            const skipBtn = document.getElementById("btn-skip");
+            if (skips <= 0) {
+                skipBtn.style.opacity = "0.5";
+                skipBtn.style.cursor = "not-allowed";
+            } else {
+                skipBtn.style.opacity = "1";
+                skipBtn.style.cursor = "pointer";
+            }
+        }
+
+        function endGame(reason = 'normal') {
+            stopTimer();
+            playSound('win');
+            document.getElementById("game-view").style.display = "none";
+            document.getElementById("summary-view").style.display = "none";
+            document.getElementById("end-view").style.display = "block";
+
+            document.getElementById("final-score-val").innerText = `${score} نقطة`;
+
+            let evalText = "";
+            if (reason === 'timeout') {
+                evalText = "⏰ انتهى الوقت المخصص للتحدي! أداء رائع ومحاولة ممتازة تدل على شجاعتك وسرعتك في التفكير.";
+            } else if (reason === 'lives') {
+                evalText = "❤️ لقد استنفدت محاولاتك الـ 7! أداء بطولي ومثابرة رائعة، راجع التلخيص لتعود أقوى.";
+            }
+
+            if (score >= 120) {
+                evalText += (evalText ? "<br>" : "") + "🌟 ما شاء الله تبارك الله! كيميائي متميز وعبقري في التحليل الكيفي، مستوى استثنائي يشرف معلمك!";
+                confetti({ particleCount: 150, spread: 100 });
+            } else if (score >= 70) {
+                evalText += (evalText ? "<br>" : "") + "👏 بطل متميز وذكي جداً! أوشكت على الدرجة الكاملة، جهد يستحق التقدير والإعجاب.";
+            } else {
+                evalText += (evalText ? "<br>" : "") + "💪 عاش يا بطل! بداية واعدة ومجهود مقدّر جداً، راجع كراسة التلخيص وستحقق أعلى الدرجات بإذن الله.";
+            }
+
+            document.getElementById("evaluation-text").innerHTML = evalText;
+        }
+
+        function downloadResultImage() {
+            const card = document.getElementById("export-card");
+            html2canvas(card, { scale: 2.5 }).then(canvas => {
+                const link = document.createElement("a");
+                link.download = `نتيجة_التحليل_الكيميائي_${score}_نقطة.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
+
+        function shareWhatsApp() {
+            const text = `حققتُ ${score} نقطة في تحدي التحليل الكيميائي الكيفي للثانوية العامة! ⚗️\nتحت إشراف الأستاذ: عبد الرحمن عبد الله (01021779644).\nهل تستطيع كسر هذا الرقم في نفس الوقت المحدد؟`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function shareFacebook() {
+            const text = `أنهيتُ بنجاح مسابقة مراجعة الكيمياء (الباب الثاني: التحليل الكيميائي الكيفي) وحققتُ ${score} نقطة في الوقت المحدد! 🚀\nتصميم وإعداد الأستاذ: عبد الرحمن عبد الله - 01021779644`;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("تم نسخ نص النتيجة بنجاح! يمكنك الآن لصقها في بوست على فيسبوك.");
+            });
+        }
+
+        function restartGame() {
+            stopTimer();
+            score = 0;
+            lives = 7;
+            skips = 3;
+            isPaused = false;
+            document.getElementById("end-view").style.display = "none";
+            document.getElementById("summary-view").style.display = "none";
+            document.getElementById("game-view").style.display = "block";
+            selectCategory("كواشف وأنيونات الأحماض وكلوريد الباريوم");
+        }
+
+        window.onload = () => {
+            setTheme('dark');
+            selectCategory("كواشف وأنيونات الأحماض وكلوريد الباريوم");
+            document.body.addEventListener('click', () => getAudioContext(), { once: true });
+        };
+    </script>
+</body>
+</html>
